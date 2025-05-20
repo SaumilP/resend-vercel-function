@@ -7,17 +7,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Only POST requests allowed' });
   }
-  
-  const formData = await req.formData();
+ 
+  const { fullName, company, email, phone, message, needsNDA } = req.body; 
 
-  const fullName = formData.get('fullName') as string;
-  const company = formData.get('company') as string;
-  const email = formData.get('email') as string;
-  const phone = formData.get('phone') as string;
-  const message = formData.get('message') as string;
-  const needsNDA = formData.get('needsNDA') === 'true' || formData.get('needsNDA') === 'on';
+  const needsNDAFlag = needsNDA === 'true' || needsNDA === 'on';
   
-  const file = formData.get('file') as File | null;
+  /*const file = formData.get('file') as File | null;
   const attachment: { filename: string; content: string }[] = [];
 
    if (file && file.size > 0) {
@@ -27,7 +22,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       filename: file.name,
       content: buffer.toString('base64'), // Resend expects base64
     });
-  }
+  }*/
 
   try {
     const emailContent = `
@@ -37,7 +32,7 @@ Full Name: ${fullName}
 Company Name: ${company}
 Work Email: ${email}
 Phone Number: ${phone}
-NDA Required: ${needsNDA ? 'Yes' : 'No'}
+NDA Required: ${needsNDAFlag ? 'Yes' : 'No'}
 
 Message:
 ${message}
@@ -47,9 +42,9 @@ ${message}
       from: 'Acme <onboarding@resend.dev>', // Must be verified
       to: 'contact@tdhenterprises.co.za',
       subject: `New Contact Form Submission from ${fullName}`,
-      reply_to: email,
+      replyTo: email,
       text: emailContent,
-      attachments: attachment.length > 0 ? attachment : undefined,
+      // attachments: attachment.length > 0 ? attachment : undefined,
     });
 
     res.status(200).json({ success: true, data });
