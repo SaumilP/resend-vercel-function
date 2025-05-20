@@ -18,7 +18,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const needsNDA = formData.get('needsNDA') === 'true' || formData.get('needsNDA') === 'on';
   
   const file = formData.get('file') as File | null;
-  let attachment: { filename: string; content: string }[] = [];
+  const attachment: { filename: string; content: string }[] = [];
 
    if (file && file.size > 0) {
     const arrayBuffer = await file.arrayBuffer();
